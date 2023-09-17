@@ -1,0 +1,36 @@
+modules:
+  jira:issuePanel:
+    - key: timebox-demo-1-hello-world-panel
+      resource: main
+      resolver:
+        function: resolver
+      viewportSize: medium
+      title: timebox_demo_1
+      icon: https://developer.atlassian.com/platform/forge/images/issue-panel-icon.svg
+  function:
+    - key: resolver
+      handler: index.handler
+    - key: update-issue
+      handler: index.updateIssue
+  trigger: 
+    - key: issue-update-trigger
+      function: update-issue
+      events: 
+        - avi:jira:updated:issue
+resources:
+  - key: main
+    path: static/hello-world/build
+permissions:
+  scopes:
+    - read:jira-work
+    - storage:app
+    - write:jira-work
+    - read:jira-user
+  content:
+    styles:
+      - 'unsafe-inline'
+    scripts:
+      - 'unsafe-inline'
+      - 'unsafe-hashes'
+app:
+  id: ari:cloud:ecosystem::app/247fcaa8-51a8-400e-a3d2-c50971d85c69
