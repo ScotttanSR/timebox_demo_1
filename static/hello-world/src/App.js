@@ -27,9 +27,6 @@ function App() {
   const [timeLogsCurrentState, setTimeLogsCurrentState] = useState({});
   const [timeLogsHistory, setTimeLogsHistory] = useState([]);
 
-  console.log("timerrunning",timerRunning);
-  console.log("duration", duration);
-  console.log("timelogisrunning in pub", timeLogsIsRunning)
 
   const handleDurationChange = (event) => {
     console.log("event:", event.value)
@@ -57,7 +54,6 @@ function App() {
 
 
   const handleStart = () => {
-    console.log("name:", userName);
     const durationInSeconds = parseInt(selectedDuration, 10) * 60;
     const dataToStore = {
       ...dataType,
@@ -99,9 +95,6 @@ function App() {
         const now = new Date();
         const snapshotDateTime = new Date(snapshotDate);
         const elapsedSeconds = Math.floor((now - snapshotDateTime) / 1000);
-        console.log("snapshotDuration:",snapshotDuration);
-        console.log("Duration:",duration);
-        console.log("elapse:",elapsedSeconds);
         const newSnapShotDuration = duration + elapsedSeconds;
         const updatedData = {...dataType, "isPause":false, "snapshotDuration":newSnapShotDuration};
         setSnapshotDuration(newSnapShotDuration);
@@ -173,11 +166,6 @@ function App() {
     };
     setTimeLogsHistory((prevHistory) => [...prevHistory, completedTimeLog]);
     updatedData.timeLogsHistory = [...(timeLogsHistory || []), completedTimeLog];
-
-    console.log("timelogshistory:",timeLogsHistory);
-    console.log("updatedData in handle stop:",updatedData);
-    // setTimeLogsIsRunning(false);
-    // console.log("timelogisrunning in handle stop", timeLogsIsRunning)
     storeData(issueID, updatedData);
     
   }
@@ -220,8 +208,6 @@ function App() {
       );
       
       if (timeLogsIsRunning) {
-        console.log("timelogsisrunning", timeLogsIsRunning)
-        console.log("code run here")
         // Increment the elapsed time counter
        setTimeout(updateElapsedTimes, 1000); // Schedule the next update
       }
@@ -243,8 +229,6 @@ function App() {
       getData(issueID)
         .then((data) =>{
           storageData = data;
-          console.log("storageData: ",storageData);
-          console.log("timelog isrunning:", storageData.timeLog.isRunning);
           if (storageData.timeLogsHistory && Array.isArray(storageData.timeLogsHistory)) {
             setTimeLogsHistory(storageData.timeLogsHistory);
           }
@@ -262,8 +246,6 @@ function App() {
             const snapshotDate = new Date(storageData.snapshotDate);
             const elapsedSeconds = Math.floor((now - snapshotDate) / 1000);
             const countdownDuration = storageData.snapshotDuration - elapsedSeconds;
-            console.log("elapsedSeconds:", elapsedSeconds);
-            console.log("countdownduration", countdownDuration);
             setDuration(countdownDuration);
             setTimerRunning(storageData.isRunning);
             setSnapshotDate(storageData.snapshotDate);
@@ -360,6 +342,10 @@ function App() {
     return kulDataStr;
   };
 
+  const totalElapsedTime  = timeLogsHistory.reduce((accumulator, currentValue) => {
+    return accumulator + currentValue.elapsedTime;
+  }, 0);
+
   //get issue key
   useEffect(() => {
     (async () => {
@@ -367,8 +353,6 @@ function App() {
       // To get the issue details, i.e. summary and description
       const data = await invoke('getIssue');
       const userName = await invoke('getUser');
-      console.log("username data:", userName.avatarUrls["48x48"])
-      console.log("userName:",userName.displayName);
       setIssueID(data.key);
       setUserName(userName.displayName);
       setUserPicURL(userName.avatarUrls["48x48"])
@@ -412,6 +396,7 @@ function App() {
                 isDisabled={timerRunning}
                 pageSize={2}
                 options={[
+                  { label: '1 minutes', value: '1' },
                   { label: '5 minutes', value: '5' },
                   { label: '10 minutes', value: '10' },
                   { label: '15 minutes', value: '15' },
@@ -441,6 +426,7 @@ function App() {
                 <strong>Elapsed Time:</strong> {formatElapsedTime(timeLogsElapsedTime)}
               </li>
             )}
+            
           </ul>
           <ButtonGroup appearance="primary"> 
             {timeLogsIsRunning ? (
@@ -449,6 +435,9 @@ function App() {
               <Button onClick={handleStartForTimeLog}>Start</Button>
             )}
             <Button onClick={handleResetForTimeLog}>Reset</Button>
+            {timeLogsHistory.length > 0 && (
+              <strong>Total Time: {formatElapsedTime(totalElapsedTime)}</strong>
+            )}
           </ButtonGroup>
         </div>
       </div>

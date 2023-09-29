@@ -74,7 +74,7 @@ resolver.define('sendNotification', async (req) => {
       "subject": "Started Timebox Timer",
       "textBody": "View results for this ticket are now available.",
       "to": {
-        "assigne": true
+        "assignee": true
       }
     }`;
 
@@ -108,7 +108,7 @@ resolver.define('sendNotificationFinish', async (req) => {
       "subject": "Timebox Timer Finish!",
       "textBody": "View results for this ticket are now available.",
       "to": {
-        "assigne": true
+        "assignee": true
       }
     }`;
 
@@ -135,12 +135,11 @@ resolver.define('sendNotificationFinish', async (req) => {
 export const handler = resolver.getDefinitions();
 
 export const updateIssue = async (event, context) => {
-  console.log("issue updated yessirr", event.issue.fields.status.name);
+  console.log("issue updated to: ", event.issue.fields.status.name);
   const eventId = event.issue.key;
   const storageData = await getData(eventId);
   if (storageData !== null && event.issue.fields.status.name !== "To Do"){
-    console.log("storagedata:", storageData);
-    if (storageData.timeLog.isRunning == false) {
+    if (storageData.timeLog.isRunning === false && event.issue.fields.status.name !== "Done") {
       const newData = {
         ...storageData,
         "timeLog": {
@@ -150,7 +149,7 @@ export const updateIssue = async (event, context) => {
       }
       console.log(newData);
       storeData(eventId, newData)
-    } else if (storageData.timeLog.isRunning == true && event.issue.fields.status.name == "Done"){
+    } else if (storageData.timeLog.isRunning === true && event.issue.fields.status.name === "Done"){
         const timeLogsHistory = storageData.timeLogsHistory;
         const now = new Date();
         const startedDate = new Date(storageData.timeLog.startTime);
@@ -171,8 +170,10 @@ export const updateIssue = async (event, context) => {
         }
         console.log("newdata to store:",newData);
         storeData(eventId, newData);
-    } else{
+    } else if (storageData.timeLog.isRunning === true){
       console.log("Timer is currently running")
+    } else {
+      console.log("Timelog not started");
     }
   } else{
     console.log("Timelog not started at To Do");
