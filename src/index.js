@@ -129,6 +129,7 @@ resolver.define('sendNotificationFinish', async (req) => {
 export const handler = resolver.getDefinitions();
 
 export const updateIssue = async (event, context) => {
+  console.log("running")
   const currentStatus = event.issue.fields.status.name;
   const eventId = event.issue.key;
   const storageData = await getData(eventId);
@@ -147,17 +148,23 @@ export const updateIssue = async (event, context) => {
     storeData(eventId, newTimeLog);
   } else {
     const associatedStatuses = event.associatedStatuses;
+    if (!associatedStatuses) {
+      return;
+    }
     const timeLogsHistory = storageData.timeLogsHistory;
-    const now = new Date();
-    const startedDate = new Date(storageData.timeLog.startTime);
-    const elapsedSeconds = Math.floor((now - startedDate) / 1000);
-    const newEntry = {
-      startTime: startedDate,
-      endTime: new Date().toISOString(),
-      elapsedTime: elapsedSeconds,
-      status: associatedStatuses[0].name,
-    };
-    timeLogsHistory.push(newEntry);
+    
+    if (associatedStatuses[0].name !== 'To Do' && associatedStatuses[0].name !== 'Done'){
+      const now = new Date();
+      const startedDate = new Date(storageData.timeLog.startTime);
+      const elapsedSeconds = Math.floor((now - startedDate) / 1000);
+      const newEntry = {
+        startTime: startedDate,
+        endTime: new Date().toISOString(),
+        elapsedTime: elapsedSeconds,
+        status: associatedStatuses[0].name,
+      };
+      timeLogsHistory.push(newEntry);
+    }
     const newData = {
       ...storageData,
       timeLog: {

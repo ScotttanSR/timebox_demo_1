@@ -26,6 +26,8 @@ function App() {
   const [timeLogStartDate, setTimeLogStartDate] = useState(null);
   const [timeLogsCurrentState, setTimeLogsCurrentState] = useState({});
   const [timeLogsHistory, setTimeLogsHistory] = useState([]);
+  const [currentStatus, setCurrentStatus] = useState();
+
 
 
   const handleDurationChange = (event) => {
@@ -269,6 +271,7 @@ function App() {
             setTimeLogs([initialTimeLogEntry]);
             setTimeLogsCurrentState(storageData.timeLog);
             setTimeLogsIsRunning(true);
+            setCurrentStatus(storageData.timeLog.status);
             setIsLoading(false);
           }
         })
@@ -416,14 +419,16 @@ function App() {
               <li key={index}>
                 <strong>Start Time:</strong> {formatDate(log.startTime)}<br />
                 <strong>End Time:</strong> {log.endTime ? formatDate(log.endTime) : 'In Progress'}<br />
-                <strong>Elapsed Time:</strong> {log.elapsedTime ? formatElapsedTime(log.elapsedTime) : '00:00:00'}
+                <strong>Elapsed Time:</strong> {log.elapsedTime ? formatElapsedTime(log.elapsedTime) : '00:00:00'} <br />
+                <strong>Status:</strong> {log.status}
               </li>
             ))}
             {timeLogsIsRunning && (
               <li>
                 <strong>Start Time:</strong> {formatDate(timeLogs[0].startTime)}<br />
-                <strong>End Time:</strong> In Progress<br />
-                <strong>Elapsed Time:</strong> {formatElapsedTime(timeLogsElapsedTime)}
+                <strong>End Time:</strong> Counting...<br />
+                <strong>Elapsed Time:</strong> {formatElapsedTime(timeLogsElapsedTime)}<br />
+                <strong>Status:</strong> {currentStatus}
               </li>
             )}
             
