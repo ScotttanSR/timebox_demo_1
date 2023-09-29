@@ -17,9 +17,17 @@ modules:
       function: update-issue
       events: 
         - avi:jira:updated:issue
+  jira:issueActivity:
+    - key: timelog-history
+      resource: timelog-history-main
+      resolver:
+        function: resolver
+      title: Timelog History
 resources:
   - key: main
     path: static/hello-world/build
+  - key: timelog-history-main
+    path: static/timelog-history/build
 permissions:
   scopes:
     - read:jira-work

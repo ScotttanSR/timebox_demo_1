@@ -25,8 +25,8 @@ function App() {
   const [timeLogsElapsedTime, setTimeLogsElapsedTime] = useState(0);
   const [timeLogStartDate, setTimeLogStartDate] = useState(null);
   const [timeLogsCurrentState, setTimeLogsCurrentState] = useState({});
-  const [timeLogsHistory, setTimeLogsHistory] = useState([]);
   const [currentStatus, setCurrentStatus] = useState();
+  const [timeLogsHistory, setTimeLogsHistory] = useState([]);
 
 
 
@@ -231,9 +231,6 @@ function App() {
       getData(issueID)
         .then((data) =>{
           storageData = data;
-          if (storageData.timeLogsHistory && Array.isArray(storageData.timeLogsHistory)) {
-            setTimeLogsHistory(storageData.timeLogsHistory);
-          }
           
           if (storageData.isPause === true){
             setDuration(storageData.remainingDuration);
@@ -345,9 +342,6 @@ function App() {
     return kulDataStr;
   };
 
-  const totalElapsedTime  = timeLogsHistory.reduce((accumulator, currentValue) => {
-    return accumulator + currentValue.elapsedTime;
-  }, 0);
 
   //get issue key
   useEffect(() => {
@@ -414,25 +408,14 @@ function App() {
         <hr/>
         <div>
           <h1>TimeLog</h1>
-          <ul style={{marginBottom: "20px"}}>
-            {timeLogsHistory.map((log, index) => (
-              <li key={index}>
-                <strong>Start Time:</strong> {formatDate(log.startTime)}<br />
-                <strong>End Time:</strong> {log.endTime ? formatDate(log.endTime) : 'In Progress'}<br />
-                <strong>Elapsed Time:</strong> {log.elapsedTime ? formatElapsedTime(log.elapsedTime) : '00:00:00'} <br />
-                <strong>Status:</strong> {log.status}
-              </li>
-            ))}
             {timeLogsIsRunning && (
-              <li>
+              <div>
                 <strong>Start Time:</strong> {formatDate(timeLogs[0].startTime)}<br />
                 <strong>End Time:</strong> Counting...<br />
                 <strong>Elapsed Time:</strong> {formatElapsedTime(timeLogsElapsedTime)}<br />
                 <strong>Status:</strong> {currentStatus}
-              </li>
+              </div>
             )}
-            
-          </ul>
           <ButtonGroup appearance="primary"> 
             {timeLogsIsRunning ? (
               <Button onClick={handleStopForTimeLog}>Stop</Button>
@@ -440,9 +423,6 @@ function App() {
               <Button onClick={handleStartForTimeLog}>Start</Button>
             )}
             <Button onClick={handleResetForTimeLog}>Reset</Button>
-            {timeLogsHistory.length > 0 && (
-              <strong>Total Time: {formatElapsedTime(totalElapsedTime)}</strong>
-            )}
           </ButtonGroup>
         </div>
       </div>
