@@ -153,7 +153,7 @@ export const updateIssue = async (event, context) => {
     }
     const timeLogsHistory = storageData.timeLogsHistory;
     
-    if (associatedStatuses[0].name !== 'To Do' && associatedStatuses[0].name !== 'Done'){
+    if (associatedStatuses[0].name !== 'To Do' && associatedStatuses[0].name !== 'Done' && storageData.timeLog.isRunning === true){
       const now = new Date();
       const startedDate = new Date(storageData.timeLog.startTime);
       const elapsedSeconds = Math.floor((now - startedDate) / 1000);

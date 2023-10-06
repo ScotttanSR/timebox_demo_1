@@ -28,8 +28,6 @@ function App() {
   const [currentStatus, setCurrentStatus] = useState();
   const [timeLogsHistory, setTimeLogsHistory] = useState([]);
 
-
-
   const handleDurationChange = (event) => {
     console.log("event:", event.value)
     setSelectedDuration(event.value);
@@ -139,7 +137,8 @@ function App() {
     // store updated time log data 
     const currentState = {
       "isRunning": true, 
-      "startTime": new Date().toISOString(), 
+      "startTime": new Date().toISOString(),
+      "status": currentStatus
     }; 
     const updatedData = { 
       ...dataType,
@@ -164,7 +163,8 @@ function App() {
     const completedTimeLog = {
       "startTime": timeLogStartDate,
       "endTime": endTime,
-      "elapsedTime": timeLogsElapsedTime 
+      "elapsedTime": timeLogsElapsedTime, 
+      "status": currentStatus
     };
     setTimeLogsHistory((prevHistory) => [...prevHistory, completedTimeLog]);
     updatedData.timeLogsHistory = [...(timeLogsHistory || []), completedTimeLog];
@@ -231,6 +231,7 @@ function App() {
       getData(issueID)
         .then((data) =>{
           storageData = data;
+          setTimeLogsHistory(storageData.timeLogsHistory);
           
           if (storageData.isPause === true){
             setDuration(storageData.remainingDuration);
@@ -351,6 +352,7 @@ function App() {
       const data = await invoke('getIssue');
       const userName = await invoke('getUser');
       setIssueID(data.key);
+      setCurrentStatus(data.fields.status.name);
       setUserName(userName.displayName);
       setUserPicURL(userName.avatarUrls["48x48"])
     })();
